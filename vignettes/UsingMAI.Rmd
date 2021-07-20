@@ -1,0 +1,82 @@
+---
+title: "Utilizing Mechanism-Aware Imputation (MAI)"
+author: "Jonathan Dekermanjian"
+date: "7/9/2021"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Utilizing Mechanism-Aware Imputation (MAI)}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Mechanism-Aware Imputation (MAI) is a two-step approach to imputing missing 
+values, in metabolomics. Step 1 involves classifying the missing value 
+mechanisms in your data as either MCAR/MAR or MNAR, using a random forest 
+classifier. Step 2 of MAI uses the predicted missing value mechanisms to impute 
+MCAR/MAR or MNAR values using a selected imputation algorithm, for each class, 
+that works best. The tested and available imputation algorithms to impute 
+MCAR/MAR values are Bayesian Principle Component Analysis (BPCA), Multiple 
+Imputation No-Skip K-Nearest Neighbors (Multi_nsKNN), and random forest. 
+The available algorithms to impute MNAR classified values are nsKNN and a 
+single imputation approach for linear regression with a randomly right-censored 
+covariate, we developed a method for imputation of metabolites where 
+left-censoring is present.
+
+# Installation
+
+The following code chunk depicts how to install MAI from Bioconductor
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("MAI")
+```
+
+# Using MAI
+
+```{r}
+# Load the MAI package
+library(MAI)
+# Load the example data with missing values
+data(data_miss)
+# Impute the data using BPCA for predicted MCAR value imputation and
+# use Single imputation for predicted MNAR value imputation
+
+Results = MAI(data_miss, # The data with missing values
+          MCAR_algorithm = "BPCA", # The MCAR algorithm to use
+          MNAR_algorithm= "Single" # The MNAR algorithm to use
+        )
+
+# Get MAI imputations
+Results[["Imputed_data"]][["MAI"]][1:5, 1:5] # show only 5x5
+```
+
+```{r}
+# Get BPCA imputation imputed data
+head(Results[["Imputed_data"]][["MCAR_imps"]])[1:5, 1:5] # show only 5x5
+
+# Get Single imputation imputed data
+Results[["Imputed_data"]][["MNAR_imps"]][1:5, 1:5] # show only 5x5
+```
+
+```{r}
+# Get the estimated mixed missingness parameters
+Results[["Estimated_Params"]]
+```
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
+
+# References
+
+
