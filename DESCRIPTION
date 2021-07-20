@@ -1,0 +1,61 @@
+Package: MAI
+Type: Package
+Title: Mechanism-Aware Imputation
+Version: 0.1.0
+Authors@R: 
+  c(person(given = "Jonathan",
+           family = "Dekermanjian",
+           role = c("aut", "cre"),
+           email = "Jonathan.Dekermanjian@CUAnschutz.edu"),
+    person(given = "Elin",
+           family = "Shaddox",
+           role = c("aut"),
+           email = "Elin.Shaddox@CUAnschutz.edu"),
+    person(given = "Debmalya",
+           family = "Nandy",
+           role = c("aut"),
+           email = "Debmalya.Nandy@CUAnschutz.edu"),
+   person(given = "Debashis",
+           family = "Ghosh",
+           role = c("aut"),
+           email = "Debashis.Ghosh@CUAnschutz.edu"),
+   person(given = "Katerina",
+           family = "Kechris",
+           role = c("aut"),
+           email = "Katerina.Kechris@CUAnschutz.edu"))
+Description: A two-step approach to imputing missing data in metabolomics.
+    Where step 1 uses a random forest classifier to classify missing values as 
+    either MCAR/MAR or MNAR. Step 2 imputes the missing values based on the 
+    classified missing mechanisms, using the appropriate imputation algorithms. 
+    MCAR/MAR tested and available imputation algorithms include Bayesian 
+    Principle Component Analysis (BPCA), Multiple Imputation No-Skip K-Nearest 
+    Neighbors (Multi_nsKNN), and random forest. The imputation algorihms that 
+    are available and tested for MNAR values include nsKNN and a single 
+    imputation approach for linear regression with a randomly right-censored 
+    covariate, we developed a method for imputation of metabolites where 
+    left-censoring is present.
+License: GPL-3
+Encoding: UTF-8
+Imports:
+    caret,
+    parallel,
+    doParallel,
+    e1071,
+    future.apply,
+    future,
+    missForest,
+    pcaMethods,
+    tidyverse,
+    stats,
+    utils
+biocViews:
+    Software,
+    Metabolomics,
+    StatisticalMethod,
+    Classification
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
