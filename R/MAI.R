@@ -19,6 +19,19 @@ MAI = function(data_miss,
   }
 
   # Check data
+  if (is(data_miss, "SummarizedExperiment")){
+    if (sum(is.na(assay(data_miss))) == 0){
+      stop("No missing values detected to impute")
+    }
+    if (any(rowSums(is.na(assay(data_miss))) == ncol(data_miss))){
+      stop("Detected a row that contains no observed data, omit this row.")
+    }
+    if (any(rowSums(is.na(assay(data_miss))) > 0.8*ncol(data_miss))){
+      warning("Detected a row with more than 80% missing values.
+            Consider omitting rows that are > 80% missing.")
+    }
+  }else{
+
   if (sum(is.na(data_miss)) == 0){
     stop("No missing values detected to impute")
   }
@@ -28,7 +41,7 @@ MAI = function(data_miss,
   if (any(rowSums(is.na(data_miss)) > 0.8*ncol(data_miss))){
     warning("Detected a row with more than 80% missing values.
             Consider omitting rows that are > 80% missing.")
-  }
+  }}
 
   # Check n_cores
   if (n_cores%%1 != 0){
@@ -39,6 +52,11 @@ MAI = function(data_miss,
   }
   if (n_cores < -1){
     stop("n_cores must be an integer greater than or equal to -1.")
+  }
+
+  if (is(data_miss, "SummarizedExperiment")) {
+    fldata = data_miss
+    data_miss = assay(data_miss)
   }
 
   # Original data percent missing (total)
@@ -124,10 +142,29 @@ MAI = function(data_miss,
                                        MCAR_algorithm = MCAR_algorithm,
                                        MNAR_algorithm = MNAR_algorithm,
                                        n_cores = n_cores)
-  return(list(Imputed_data = Imputed_data,
-              Estimated_Params = list(
-                Alpha = alpha,
-                Beta = beta,
-                Gamma = gamma
-              )))
+
+  if(exists("fldata")){
+    assay(fldata, 1, withDimnames = FALSE) = as.matrix(Imputed_data[[1]])
+    MCAR_imputations = Imputed_data[[2]]
+    MNAR_imputations = Imputed_data[[3]]
+    estimated_Params = list(
+      Alpha = alpha,
+      Beta = beta,
+      Gamma = gamma
+    )
+    metadata(fldata) = list(metadata(fldata),
+                            Estimated_Params = estimated_Params,
+                            MCAR_imputations = MCAR_imputations,
+                            MNAR_imputations = MNAR_imputations)
+    return(fldata)
+  }else{
+    return(list(Imputed_data = Imputed_data,
+                Estimated_Params = list(
+                  Alpha = alpha,
+                  Beta = beta,
+                  Gamma = gamma
+                )))
+  }
+
+
 }
