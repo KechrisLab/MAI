@@ -39,7 +39,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("MAI")
 ```
 
-# Using MAI
+# Using MAI when your data is a data.frame or matrix
 
 ```{r}
 # Load the MAI package
@@ -69,6 +69,40 @@ Results[["Imputed_data"]][["MNAR_imps"]][1:5, 1:5] # show only 5x5
 ```{r}
 # Get the estimated mixed missingness parameters
 Results[["Estimated_Params"]]
+```
+
+
+# Using MAI when your data is a SummarizedExperiment class
+```{r}
+# Load the SummarizedExperiment package
+library(SummarizedExperiment)
+# Load the example data with missing values
+data(data_miss)
+# Turn the data to a SummarizedExperiment
+data_miss = SummarizedExperiment(data_miss)
+# Impute the data using BPCA for predicted MCAR value imputation and
+# use Single imputation for predicted MNAR value imputation
+
+Results = MAI(data_miss, # The data with missing values
+          MCAR_algorithm = "BPCA", # The MCAR algorithm to use
+          MNAR_algorithm= "Single" # The MNAR algorithm to use
+        )
+
+# Get MAI imputations
+assay(Results)[1:5, 1:5] # show only 5x5
+```
+
+```{r}
+# Get BPCA imputation imputed data
+metadata(Results)[["MCAR_imputations"]][1:5, 1:5] # show only 5x5
+
+# Get Single imputation imputed data
+metadata(Results)[["MNAR_imputations"]][1:5, 1:5] # show only 5x5
+```
+
+```{r}
+# Get the estimated mixed missingness parameters
+metadata(Results)[["Estimated_Params"]]
 ```
 
 # Session Information
