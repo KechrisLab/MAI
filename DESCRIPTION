@@ -1,7 +1,7 @@
 Package: MAI
 Type: Package
 Title: Mechanism-Aware Imputation
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: 
   c(person(given = "Jonathan",
            family = "Dekermanjian",
@@ -47,7 +47,10 @@ Imports:
     pcaMethods,
     tidyverse,
     stats,
-    utils
+    utils,
+    methods,
+    SummarizedExperiment,
+    S4Vectors
 biocViews:
     Software,
     Metabolomics,
