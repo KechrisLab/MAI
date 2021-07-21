@@ -20,6 +20,9 @@ MAI = function(data_miss,
 
   # Check data
   if (is(data_miss, "SummarizedExperiment")){
+    if (length(assays(data_miss)) != 1){
+      stop("MAI only supports one assay.")
+    }
     if (sum(is.na(assay(data_miss))) == 0){
       stop("No missing values detected to impute")
     }
