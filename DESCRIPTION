@@ -1,7 +1,7 @@
 Package: MAI
 Type: Package
 Title: Mechanism-Aware Imputation
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: 
   c(person(given = "Jonathan",
            family = "Dekermanjian",
@@ -40,6 +40,7 @@ Imports:
     caret,
     parallel,
     doParallel,
+    foreach,
     e1071,
     future.apply,
     future,
@@ -59,6 +60,7 @@ biocViews:
 Suggests: 
     knitr,
     rmarkdown,
+    BiocStyle,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
