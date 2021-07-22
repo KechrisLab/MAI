@@ -21,7 +21,7 @@ kapImpute2 <- function(missData){
   erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
 
   output <- missData
-  for (i in seq_along(MissVecStart:nVar)){
+  for (i in MissVecStart:nVar){
     # NOTE: index of ordered minimum count missing is i
 
     # to get row with respective missing count
@@ -34,7 +34,7 @@ kapImpute2 <- function(missData){
     # estimating censoring point as min of metabolite
     c <- min(output[index,], na.rm = TRUE)
 
-    for (j in seq_along(1:length(missSubj))){
+    for (j in 1:length(missSubj)){
       S.est <- 1 - (rowMissingCount/(nVar -rowMissingCount))
       #print(S.est)
       meanEst <- rowMeans(output, na.rm = TRUE)[index]
