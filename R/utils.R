@@ -15,7 +15,12 @@ check_distance = function(data_miss, data_sub, PercentMiss){
   })
   fullSortedData = as.data.frame(do.call(rbind, fullSortedData))
 
-  thresh_I = seq(5,PercentMiss,5)
+  if (PercentMiss < 5){
+    thresh_I = c(5)
+  } else {
+    thresh_I = seq(5,PercentMiss,5)
+  }
+
   thresh_II = seq(60,80,5)
   thresh_III = seq(5, 60, 5)
   grid = base::expand.grid(thresh_I, thresh_II, thresh_III)
@@ -185,17 +190,20 @@ imputation_algorithms = function(missingData,
 
   if (n_cores != 1){
     plan(multisession, workers = 2)
-  }
 
   SingleAlgorithmImputations = future_lapply(list(MNAR_algorithm,
                                                   MCAR_algorithm),function(l){
+
     if (l == "Single"){
       MNAR_imputation = kapImpute2(missingData)
     }
 
     if (l == 'nsKNN'){
-      MNAR_imputation = nsKNN(missingData,
-                              k = floor(sqrt(nrow(missingData))), iters=1)
+      k = floor(sqrt(nrow(missingData)))
+      if (k>numcols){
+        k=numcols-1
+      }
+      MNAR_imputation = nsKNN(missingData, k, iters=1)
     }
 
     if (l == "BPCA"){
@@ -207,7 +215,11 @@ imputation_algorithms = function(missingData,
       MCAR_imputation = missForest(missingData)[["ximp"]]
     }
     if (l == 'Multi_nsKNN'){
-      MCAR_imputation = nsKNN(missingData, k = floor(sqrt(nrow(missingData))),
+      k = floor(sqrt(nrow(missingData)))
+      if (k>numcols){
+        k=numcols-1
+      }
+      MCAR_imputation = nsKNN(missingData, k,
                               iters=4, weighted=TRUE, scale = TRUE,
                               shuffle = TRUE)
     }
@@ -217,15 +229,44 @@ imputation_algorithms = function(missingData,
     } else {
       return(MCAR_imputation = MCAR_imputation)
     }
-  }, future.globals = c("kapImpute2", "nsKNN"))
+  }, future.globals = c("kapImpute2", "nsKNN"), future.seed=TRUE)
 
-  if (n_cores != 1){
-    plan(sequential)
-  }
+  plan(sequential)
 
 
   MNAR_imputation = SingleAlgorithmImputations[[1]]
   MCAR_imputation = SingleAlgorithmImputations[[2]]
+  } else {
+    if (MNAR_algorithm == "Single"){
+      MNAR_imputation = kapImpute2(missingData)
+    }
+
+    if (MNAR_algorithm == 'nsKNN'){
+      k = floor(sqrt(nrow(missingData)))
+      if (k>numcols){
+        k=numcols-1
+      }
+      MNAR_imputation = nsKNN(missingData, k, iters=1)
+    }
+
+    if (MCAR_algorithm == "BPCA"){
+      MCAR_imputation = pca(missingData,
+                            method = "bpca",
+                            verbose=FALSE)@completeObs
+    }
+    if (MCAR_algorithm == "random_forest"){
+      MCAR_imputation = missForest(missingData)[["ximp"]]
+    }
+    if (MCAR_algorithm == 'Multi_nsKNN'){
+      k = floor(sqrt(nrow(missingData)))
+      if (k>numcols){
+        k=numcols-1
+      }
+      MCAR_imputation = nsKNN(missingData, k,
+                              iters=4, weighted=TRUE, scale = TRUE,
+                              shuffle = TRUE)
+    }
+  }
 
   Imputed_data[MCAR_index] = MCAR_imputation[MCAR_index]
   Imputed_data[MNAR_index] = MNAR_imputation[MNAR_index]
