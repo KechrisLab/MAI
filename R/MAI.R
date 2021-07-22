@@ -127,8 +127,9 @@ MAI = function(data_miss,
                 ntree = 300,
                 verbose = FALSE)
 
-  if (n_cores != 1){
+  if (exists("cl")){
     stopCluster(cl)
+    registerDoSEQ()
   }
 
 
@@ -138,6 +139,7 @@ MAI = function(data_miss,
                         newdata = suppressWarnings(
                           generate_predictors(data_miss, labels=FALSE))
                         )
+
   # Impute based on classification predictions
   print("Imputing")
   Imputed_data = imputation_algorithms(data_miss,
