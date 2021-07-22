@@ -1,8 +1,30 @@
 ---
 title: "Utilizing Mechanism-Aware Imputation (MAI)"
-author: "Jonathan Dekermanjian"
-date: "7/9/2021"
-output: html_document
+author: 
+    - name: Jonathan Dekermanjian
+      email: Jonathan.Dekermanjian@CUAnschutz.edu
+      affiliation: University of Colorado Anschutz Medical Campus
+    - name: Elin Shaddox
+      email: Elin.Shaddox@CUAnschutz.edu
+      affiliation: University of Colorado Anschutz Medical Campus
+    - name: Debmalya Nandy
+      email: Debmalya.Nandy@CUAnschutz.edu
+      affiliation: University of Colorado Anschutz Medical Campus
+    - name: Debashis Ghosh
+      email: Debashis.Ghosh@CUAnschutz.edu
+      affiliation: University of Colorado Anschutz Medical Campus
+    - name: Katerina Kechris
+      email: Katerina.Kechris@CUAnschutz.edu
+      affiliation: University of Colorado Anschutz Medical Campus
+package: MAI
+output: 
+  BiocStyle::html_document:
+    highlight: "tango"
+    code_folding: show
+    toc: true
+    toc_float: 
+      collapsed: false
+date: "7/21/2021"
 vignette: >
   %\VignetteIndexEntry{Utilizing Mechanism-Aware Imputation (MAI)}
   %\VignetteEngine{knitr::rmarkdown}
