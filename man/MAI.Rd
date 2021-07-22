@@ -14,11 +14,14 @@ A two-step approach to imputing missing data in metabolomics.
     missing values based on the predicted missing mechanisms.
 }
 \arguments{
-    \item{data_miss}{A matrix containing missing values to impute}
+    \item{data_miss}{A matrix containing missing values designated by "NA"
+          to impute}
     \item{MCAR_algorithm}{The imputation algorithm you wish to use to impute
-          MCAR predicted missing values.}
+          MCAR predicted missing values. possible algorithms
+          c("BPCA", "Multi_nsKNN", "random_forest")}
     \item{MNAR_algorithm}{The imputation algorithm you wish to use to impute
-          MNAR predicted missing values.}
+          MNAR predicted missing values.
+          possible algorithms c("Single", "nsKNN")}
     \item{n_cores}{The number of cores you want to utilize. Default is 1 core.
           To use all cores specify n_cores = -1.}
 }
