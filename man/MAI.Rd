@@ -3,8 +3,8 @@
 \title{Mechanism-Aware Imputation}
 \usage{
 MAI(data_miss,
-    MCAR_algorithm = "BPCA",
-    MNAR_algorithm = "Single",
+    MCAR_algorithm = c("BPCA", "Multi_nsKNN", "random_forest"),
+    MNAR_algorithm = c("nsKNN", "Single"),
     n_cores = 1,
     assay_ix = 1,
     verbose = TRUE
