@@ -1,7 +1,12 @@
 MAI = function(data_miss,
-               MCAR_algorithm = "BPCA",
-               MNAR_algorithm = "Single",
-               n_cores = 1){
+               MCAR_algorithm = c("BPCA", "Multi_nsKNN", "random_forest"),
+               MNAR_algorithm = c('nsKNN', "Single"),
+               n_cores = 1,
+               assay_ix = 1,
+               verbose = TRUE){
+
+  MCAR_algorithm = match.arg(MCAR_algorithm)
+  MNAR_algorithm = match.arg(MNAR_algorithm)
 
   # Possible imputation algorithms
   MCAR_algorithms = c("BPCA", "random_forest", "Multi_nsKNN")
@@ -56,18 +61,27 @@ MAI = function(data_miss,
   if (n_cores < -1){
     stop("n_cores must be an integer greater than or equal to -1.")
   }
+  if (n_cores == 0){
+    stop("n_cores must be a non-zero integer.")
+  }
 
+  # Check summarized experiment
   if (is(data_miss, "SummarizedExperiment")) {
     fldata = data_miss
     data_miss = assay(data_miss)
   }
+
 
   # Original data percent missing (total)
   PercentMiss = (sum(is.na(data_miss))/(nrow(data_miss)*ncol(data_miss)))*100
   data = largest_complete_subset(data_miss)
   # Estimate threshold I
   threshs = list()
-  print("Estimating pattern of missingness")
+
+  if (verbose){
+    message("Estimating pattern of missingness")
+  }
+
   for (i in seq_along(1:10)){
     try({threshs[[i]] = check_distance(data_miss, data, PercentMiss)},
         silent = FALSE)
@@ -82,7 +96,10 @@ MAI = function(data_miss,
 
 
   # generate missingness
-  print('Imposing missingness')
+  if (verbose){
+    message('Imposing missingness')
+  }
+
   missingData = removeDataMM_altered(data,
                                      percentMiss = PercentMiss,
                                      percentBelowThresh_I = alpha,
@@ -90,7 +107,10 @@ MAI = function(data_miss,
                                      percentMisslowAbund_III = gamma)
 
   # generate predictors
-  print('Generating features')
+  if (verbose){
+    message('Generating features')
+  }
+
   full_data = suppressWarnings(generate_predictors(missingData, labels=TRUE))
 
   # Split into training and testing sets
@@ -118,7 +138,10 @@ MAI = function(data_miss,
     registerDoParallel(cl)
   }
 
-  print("Training")
+  if (verbose){
+    message("Training")
+  }
+
   # Random forest
   rfFit = train(target ~ .,
                 data = trainingSet,
@@ -127,21 +150,25 @@ MAI = function(data_miss,
                 ntree = 300,
                 verbose = FALSE)
 
-  if (exists("cl")){
+  if (n_cores != 1){
     stopCluster(cl)
     registerDoSEQ()
   }
 
-
   # Use model to make predictions on initial data
-  print("Predicting")
+  if (verbose){
+    message("Predicting")
+  }
+
   predictions = predict(rfFit,
                         newdata = suppressWarnings(
                           generate_predictors(data_miss, labels=FALSE))
                         )
 
   # Impute based on classification predictions
-  print("Imputing")
+  if (verbose){
+    message("Imputing")
+  }
   Imputed_data = imputation_algorithms(data_miss,
                                        predictions,
                                        MCAR_algorithm = MCAR_algorithm,
@@ -149,7 +176,7 @@ MAI = function(data_miss,
                                        n_cores = n_cores)
 
   if(exists("fldata")){
-    assay(fldata, 1, withDimnames = FALSE) = as.matrix(Imputed_data[[1]])
+    assay(fldata, assay_ix, withDimnames = FALSE) = as.matrix(Imputed_data[[1]])
     MCAR_imputations = Imputed_data[[2]]
     MNAR_imputations = Imputed_data[[3]]
     estimated_Params = list(
@@ -157,10 +184,17 @@ MAI = function(data_miss,
       Beta = beta,
       Gamma = gamma
     )
-    metadata(fldata) = list(metadata(fldata),
-                            Estimated_Params = estimated_Params,
-                            MCAR_imputations = MCAR_imputations,
-                            MNAR_imputations = MNAR_imputations)
+
+    metadata(fldata) = c(metadata(fldata),
+                         list(list(
+                           Estimated_Params = estimated_Params,
+                           MCAR_imputations = MCAR_imputations,
+                           MNAR_imputations = MNAR_imputations
+                         ))
+                            )
+    names(metadata(fldata))[[length(metadata(fldata))]] =
+      paste("meta_assay", assay_ix, sep = "_")
+
     return(fldata)
   }else{
     return(list(Imputed_data = Imputed_data,
