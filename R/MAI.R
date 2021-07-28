@@ -82,7 +82,7 @@ MAI = function(data_miss,
     message("Estimating pattern of missingness")
   }
 
-  for (i in seq_along(1:10)){
+  for (i in seq_len(10)){
     try({threshs[[i]] = check_distance(data_miss, data, PercentMiss)},
         silent = FALSE)
   }

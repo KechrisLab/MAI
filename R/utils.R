@@ -27,7 +27,7 @@ check_distance = function(data_miss, data_sub, PercentMiss){
   threshs = list()
   distances = numeric()
 
-  for (i in seq_along(1:nrow(grid))) {
+  for (i in seq_len(nrow(grid))) {
     alpha = grid$Var1[i]
     beta = grid$Var2[i]
     gamma = grid$Var3[i]
@@ -91,7 +91,7 @@ largest_complete_subset = function(data_miss){
   mostNAs.ix = which(unlist(mostNAs)==max(unlist(mostNAs)), arr.ind = TRUE)[1]
   data_original = do.call(rbind, data_original)
   remove.ix = ncol(data_original)-mostNAs[[mostNAs.ix]]
-  data = data_original[,seq_along(1:remove.ix)]
+  data = data_original[,seq_len(remove.ix)]
   return(data)
 }
 
@@ -126,8 +126,8 @@ generate_predictors = function(missingData, labels=TRUE){
   levels = matrix(NA, ncol = numcols, nrow = numrows) # initalize matrix
   # Use normalized data
   missingData_norm = t(apply(apply(missingData, 2, as.numeric), 1, normaliz))
-  for (i in seq_along(1:numrows)){ # calc metabolite quantile categories predictor
-    for (j in seq_along(1:numcols)){
+  for (i in seq_len(numrows)){ # calc metabolite quantile categories predictor
+    for (j in seq_len(numcols)){
       levels[i, j] = ifelse(missingData_norm[i,j] > metabolite_quantiles[3, i], "high",
                             ifelse(missingData_norm[i,j]<metabolite_quantiles[2, i], "low",
                                    ifelse(is.na(missingData_norm[i,j]), missingData[i,j],"medium")))
@@ -164,7 +164,7 @@ generate_predictors = function(missingData, labels=TRUE){
   # data structure change
   frame.as.vector = as.data.frame(frame.as.vector)
   # Ensure numeric predictors are numeric type
-  frame.as.vector[,seq_along(1:6)] = apply(frame.as.vector[,seq_along(1:6)],
+  frame.as.vector[,seq_len(6)] = apply(frame.as.vector[,seq_len(6)],
                                            2, as.numeric)
   # in case any rows are still missing omit
   frame.as.vector = na.omit(frame.as.vector)

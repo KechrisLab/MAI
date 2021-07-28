@@ -13,13 +13,13 @@ removeDataMM = function(data,
   avgMetabolite = temp[["x"]]
   sortAvgIdx = temp[["ix"]]
   numMetBelowThresh = round(percentBelowThresh_I/100*length(avgMetabolite))
-  belowThreshMet = data[sortAvgIdx[seq_along(1:numMetBelowThresh)],]
-  belowThreshIdx = sortAvgIdx[seq_along(1:numMetBelowThresh)]
+  belowThreshMet = data[sortAvgIdx[seq_len(numMetBelowThresh)],]
+  belowThreshIdx = sortAvgIdx[seq_len(numMetBelowThresh)]
   aboveThreshMet = data[sortAvgIdx[(numMetBelowThresh+1):length(avgMetabolite)],]
   aboveThreshIdx = sortAvgIdx[(numMetBelowThresh+1):length(avgMetabolite)]
 
   numMetLowAbund = round(LowAbundThresh_II/100*nrow(belowThreshMet))
-  lowAbundMet = as.matrix(data[sortAvgIdx[seq_along(1:numMetLowAbund)],])
+  lowAbundMet = as.matrix(data[sortAvgIdx[seq_len(numMetLowAbund)],])
   medAbundmet = as.matrix(
     data[sortAvgIdx[(numMetLowAbund+1):nrow(belowThreshMet)],]
     )
@@ -37,7 +37,7 @@ removeDataMM = function(data,
   # Create matrix with low abundance values for each metabolite with a low mean
   # abundance.
   LowLowAbund = as.matrix(
-    sortLowAbundmet[,seq_along(1:numSampBelowAbundThreshLowAbund)]
+    sortLowAbundmet[,seq_len(numSampBelowAbundThreshLowAbund)]
     )
   # Create a matrix with high abundance values for each metabolite with a low
   # mean abundance
@@ -46,7 +46,7 @@ removeDataMM = function(data,
     )
 
   alwaysMV = round(0.8*ncol(LowLowAbund))
-  LowLowAbund[,seq_along(1:alwaysMV)] = NA
+  LowLowAbund[,seq_len(alwaysMV)] = NA
 
   if (alwaysMV < ncol(LowLowAbund)){
     LowLowAbundRandomMV = as.matrix(
@@ -76,7 +76,7 @@ removeDataMM = function(data,
   # Create matrix with low abundance values for each metabolite with a high mean
   # abundance.
   LowMedAbund = as.matrix(
-    sortmedAbundmet[,seq_along(1:numSampBelowAbundThreshMedAbund)]
+    sortmedAbundmet[,seq_len(numSampBelowAbundThreshMedAbund)]
     )
   # Create a matrix with high abundance values for each metabolite with a high
   # mean abundance.
@@ -84,7 +84,7 @@ removeDataMM = function(data,
     sortmedAbundmet[,(numSampBelowAbundThreshMedAbund+1):ncol(sortmedAbundmet)]
     )
   alwaysMV = round(0.8*ncol(LowMedAbund))
-  LowMedAbund[,seq_along(1:alwaysMV)] = NA
+  LowMedAbund[,seq_len(alwaysMV)] = NA
 
   if (alwaysMV < ncol(LowMedAbund)){
     LowMedAbundRandomMV = as.matrix(
@@ -125,7 +125,7 @@ removeDataMM = function(data,
   removeIdx = sample(length(remainingValuesVector), numMVrandom)
   remainingValuesVector[removeIdx] = NA
 
-  aboveThreshWithMV = remainingValuesVector[seq_along(1:(ncol(aboveThreshWithMV)*nrow(aboveThreshWithMV)))]
+  aboveThreshWithMV = remainingValuesVector[seq_len((ncol(aboveThreshWithMV)*nrow(aboveThreshWithMV)))]
   HighLowAbundWithMV = remainingValuesVector[(length(aboveThreshWithMV)+1):(length(aboveThreshWithMV)+ncol(HighLowAbundWithMV)*nrow(HighLowAbundWithMV))]
   HighMedAbundWithMV = remainingValuesVector[(length(aboveThreshWithMV)+(length(HighLowAbundWithMV)+1)):length(remainingValuesVector)]
 
@@ -151,7 +151,7 @@ removeDataMM = function(data,
   }
   #MedAbundWithMV = apply(MedAbundWithMV, 2, sort, na.last=T)
   if (ncol(MedAbundWithMV) > 1){
-    for (i in seq_along(1:nrow(MedAbundWithMV))){
+    for (i in seq_len(nrow(MedAbundWithMV))){
       MedAbundWithMV[i,] = MedAbundWithMV[i,][order(sortAbundMedAbundidx[i,])]
     }}
 
@@ -161,7 +161,7 @@ removeDataMM = function(data,
     LowAbundWithMV = cbind(LowLowAbund, HighLowAbundWithMV)
   }
   if (ncol(LowAbundWithMV)>1){
-    for (i in seq_along(1:nrow(LowAbundWithMV))){
+    for (i in seq_len(nrow(LowAbundWithMV))){
       LowAbundWithMV[i,] = LowAbundWithMV[i,][order(sortAbundLowAbundidx[i,])]
     }}
   if (dz==0 & dw == 0){

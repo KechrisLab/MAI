@@ -34,7 +34,7 @@ kapImpute2 <- function(missData){
     # estimating censoring point as min of metabolite
     c <- min(output[index,], na.rm = TRUE)
 
-    for (j in 1:length(missSubj)){
+    for (j in seq_len(length(missSubj))){
       S.est <- 1 - (rowMissingCount/(nVar -rowMissingCount))
       #print(S.est)
       meanEst <- rowMeans(output, na.rm = TRUE)[index]
