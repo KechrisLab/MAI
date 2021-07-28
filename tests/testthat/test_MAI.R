@@ -1,9 +1,9 @@
 library(MAI)
-data("data_miss")
+data("untargeted_LCMS_data")
 
 test_that("MAI works properly", {
-    result = MAI(data_miss)
-    expect_true(ncol(result[["Imputed_data"]][["MAI"]])==ncol(data_miss))
+    result = MAI(untargeted_LCMS_data)
+    expect_true(ncol(result[["Imputed_data"]][["MAI"]])==ncol(untargeted_LCMS_data))
     expect_true(sum(is.na(result[["Imputed_data"]][["MAI"]]))==0)
     expect_true(is.numeric(result[["Imputed_data"]][["MAI"]]))
     expect_true(length(result[["Estimated_Params"]])==3)
