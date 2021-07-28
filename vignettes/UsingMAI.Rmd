@@ -67,13 +67,15 @@ BiocManager::install("MAI")
 # Load the MAI package
 library(MAI)
 # Load the example data with missing values
-data(data_miss)
+data("untargeted_LCMS_data")
 # Impute the data using BPCA for predicted MCAR value imputation and
 # use Single imputation for predicted MNAR value imputation
 
-Results = MAI(data_miss, # The data with missing values
+Results = MAI(data_miss = untargeted_LCMS_data, # The data with missing values
           MCAR_algorithm = "BPCA", # The MCAR algorithm to use
-          MNAR_algorithm= "Single" # The MNAR algorithm to use
+          MNAR_algorithm = "Single", # The MNAR algorithm to use
+          assay_ix = 1, # If SE, designates the assay to impute
+          verbose = TRUE # allows console message output
         )
 
 # Get MAI imputations
@@ -99,15 +101,17 @@ Results[["Estimated_Params"]]
 # Load the SummarizedExperiment package
 library(SummarizedExperiment)
 # Load the example data with missing values
-data(data_miss)
+data("untargeted_LCMS_data")
 # Turn the data to a SummarizedExperiment
-data_miss = SummarizedExperiment(data_miss)
+se = SummarizedExperiment(untargeted_LCMS_data)
 # Impute the data using BPCA for predicted MCAR value imputation and
 # use Single imputation for predicted MNAR value imputation
 
-Results = MAI(data_miss, # The data with missing values
+Results = MAI(se, # The data with missing values
           MCAR_algorithm = "BPCA", # The MCAR algorithm to use
-          MNAR_algorithm= "Single" # The MNAR algorithm to use
+          MNAR_algorithm= "Single", # The MNAR algorithm to use
+          assay_ix = 1, # If SE, designates the assay to impute
+          verbose = TRUE # allows console message output
         )
 
 # Get MAI imputations
@@ -116,15 +120,16 @@ assay(Results)[1:5, 1:5] # show only 5x5
 
 ```{r}
 # Get BPCA imputation imputed data
-metadata(Results)[["MCAR_imputations"]][1:5, 1:5] # show only 5x5
+## meta_assay_ the value assigned to assay_ix
+metadata(Results)[["meta_assay_1"]][["MCAR_imputations"]][1:5, 1:5] # show only 5x5
 
 # Get Single imputation imputed data
-metadata(Results)[["MNAR_imputations"]][1:5, 1:5] # show only 5x5
+metadata(Results)[["meta_assay_1"]][["MNAR_imputations"]][1:5, 1:5] # show only 5x5
 ```
 
 ```{r}
 # Get the estimated mixed missingness parameters
-metadata(Results)[["Estimated_Params"]]
+metadata(Results)[["meta_assay_1"]][["Estimated_Params"]]
 ```
 
 # Session Information
