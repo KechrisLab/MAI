@@ -1,4 +1,4 @@
-exportPattern('MAI')
+export('MAI')
 import('caret')
 import('tidyverse')
 import('parallel')
