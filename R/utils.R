@@ -26,34 +26,38 @@ check_distance = function(data_miss, data_sub, PercentMiss){
   grid = base::expand.grid(thresh_I, thresh_II, thresh_III)
   threshs = list()
   distances = numeric()
+  try({
+    for (i in seq_len(nrow(grid))) {
+      alpha = grid$Var1[i]
+      beta = grid$Var2[i]
+      gamma = grid$Var3[i]
+      ## Approximate thresholds
+      data_test = suppressWarnings({
+        tryCatch({
+          removeDataMM(data_sub, percentMiss = PercentMiss, alpha, beta, gamma)
+        }, error = function(e) e)
+      })
 
-  for (i in seq_len(nrow(grid))) {
-    alpha = grid$Var1[i]
-    beta = grid$Var2[i]
-    gamma = grid$Var3[i]
-    ## Approximate thresholds
-    data_test = tryCatch({
-      removeDataMM(data_sub, percentMiss = PercentMiss, alpha, beta, gamma)
-    }, error = function(e) e)
+      if(inherits(data_test, "error")) next
+      # Find highest to low average metabolite
+      data_avgMetabols = sort(apply(data_test, 1, mean, na.rm=TRUE),
+                              decreasing = TRUE, index = TRUE)
+      # Sort vertically high to low metabolite
+      data_rowSortedData = data_test[data_avgMetabols$ix,]
+      data_fullSortedData = split(data_rowSortedData,
+                                  seq(nrow(data_rowSortedData)))
 
-    if(inherits(data_test, "error")) next
-    # Find highest to low average metabolite
-    data_avgMetabols = sort(apply(data_test, 1, mean, na.rm=TRUE),
-                            decreasing = TRUE, index = TRUE)
-    # Sort vertically high to low metabolite
-    data_rowSortedData = data_test[data_avgMetabols$ix,]
-    data_fullSortedData = split(data_rowSortedData,
-                                seq(nrow(data_rowSortedData)))
+      data_fullSortedData = lapply(data_fullSortedData, function(x){
+        sum(is.na(x)/ncol(data_test))# Count missing vals per metabolite
+      })
+      data_fullSortedData = as.data.frame(do.call(rbind, data_fullSortedData))
+      distance = euc.dist(data_fullSortedData, fullSortedData)
+      threshs[[i]] = cbind(alpha, beta, gamma) # Store current threshold I
+      distances[i] = distance # Store distance computed
 
-    data_fullSortedData = lapply(data_fullSortedData, function(x){
-      sum(is.na(x)/ncol(data_test))# Count missing vals per metabolite
-    })
-    data_fullSortedData = as.data.frame(do.call(rbind, data_fullSortedData))
-    distance = euc.dist(data_fullSortedData, fullSortedData)
-    threshs[[i]] = cbind(alpha, beta, gamma) # Store current threshold I
-    distances[i] = distance # Store distance computed
+    }
+  }, silent = TRUE)
 
-  }
   return(list(thresh = threshs[which.min(distances)],
               distance = distances[which.min(distances)]))
 }
