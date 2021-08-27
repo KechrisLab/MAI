@@ -41,24 +41,51 @@ nsKNN = function(data_miss,
     neighbors = findKneighbors(distances, k, col)
     missingNum = which(is.na(data_miss[,col]))
 
+    if(length(missingNum)==0){
+      next
+    }
+
     neighborVals = data_miss[missingNum, c(col, neighbors[,1])]
     mins = minVals[missingNum]
-    listns = asplit(cbind(neighborVals[,-1], mins), 1)
-    listns = lapply(listns, function(x){ifelse(is.na(x), x[k+1], x)})
+    if (is.null(dim(neighborVals))){
+      listns = list(c(neighborVals[-1], mins))
+      listns = lapply(listns, function(x){ifelse(is.na(x), x[k+1], x)})
+
+      filledNeighborVals = unlist(listns)[-length(neighborVals)]
+    } else {
+      listns = asplit(cbind(neighborVals[,-1], mins), 1)
+      listns = lapply(listns, function(x){ifelse(is.na(x), x[k+1], x)})
+
+
     filledNeighborVals = cbind(matrix(unlist(listns),
                                       ncol = ncol(neighborVals),
                                       nrow = nrow(neighborVals),
                                       byrow = TRUE))[,-ncol(neighborVals)]
+    }
 
     weightMultiplier = (1/neighbors[,2])/sum(1/neighbors[,2])
 
     if (weighted){
-      data_imputed[missingNum, col] = apply(
-        filledNeighborVals%*%diag(weightMultiplier),
-        1, sum, na.rm=TRUE)
+      if (is.null(dim(neighborVals))){
+        data_imputed[missingNum, col] = sum(
+          filledNeighborVals%*%diag(weightMultiplier),
+          na.rm=TRUE)
+      } else {
+        data_imputed[missingNum, col] = apply(
+          filledNeighborVals%*%diag(weightMultiplier),
+          1, sum, na.rm=TRUE)
+      }
+
     } else {
-      data_imputed[missingNum, col] = apply(filledNeighborVals,
-                                            1, mean, na.rm=TRUE)
+      if (is.null(dim(neighborVals))){
+        data_imputed[missingNum, col] = mean(
+          filledNeighborVals%*%diag(weightMultiplier),
+          na.rm=TRUE)
+      }else{
+        data_imputed[missingNum, col] = apply(filledNeighborVals,
+                                              1, mean, na.rm=TRUE)
+      }
+
     }
 
   }
@@ -93,12 +120,25 @@ nsKNN = function(data_miss,
         neighborVals = data_imputed[missingNum, c(NN)]
         weightMultiplier = (1/sortDistances[,2][seq_len(k)])/sum(1/sortDistances[,2][seq_len(k)])
         if (weighted){
-          data_imputed[missingNum, numCol] = apply(
-            as.matrix(neighborVals)%*%diag(weightMultiplier),
-            1, sum, na.rm=TRUE)
+          if (is.null(dim(neighborVals))){
+            data_imputed[missingNum, numCol] = sum(
+              as.matrix(neighborVals)%*%diag(weightMultiplier),
+              na.rm=TRUE)
+          } else {
+            data_imputed[missingNum, numCol] = apply(
+              as.matrix(neighborVals)%*%diag(weightMultiplier),
+              1, sum, na.rm=TRUE)
+          }
+
         } else {
-          data_imputed[missingNum, numCol] = apply(neighborVals,
-                                                   1, mean, na.rm=TRUE)
+          if (is.null(dim(neighborVals))){
+            data_imputed[missingNum, numCol] = mean(neighborVals,
+                                                    na.rm=TRUE)
+          } else {
+            data_imputed[missingNum, numCol] = apply(neighborVals,
+                                                     1, mean, na.rm=TRUE)
+          }
+
         }
 
       }
