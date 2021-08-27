@@ -25,9 +25,6 @@ MAI = function(data_miss,
 
   # Check data
   if (is(data_miss, "SummarizedExperiment")){
-    if (length(assays(data_miss)) != 1){
-      stop("MAI only supports one assay.")
-    }
     if (sum(is.na(assay(data_miss))) == 0){
       stop("No missing values detected to impute")
     }
@@ -37,6 +34,10 @@ MAI = function(data_miss,
     if (any(rowSums(is.na(assay(data_miss))) > 0.8*ncol(data_miss))){
       warning("Detected a row with more than 80% missing values.
             Consider omitting rows that are > 80% missing.")
+    }
+    if (ncol(data_miss) < 50 | nrow(data_miss) < 50){
+      warning("The smallest data set MAI has been tested on was a 50x50 matrix.
+            Accuracy can not be guaranteed for smaller data sets.")
     }
   }else{
 
@@ -49,7 +50,10 @@ MAI = function(data_miss,
   if (any(rowSums(is.na(data_miss)) > 0.8*ncol(data_miss))){
     warning("Detected a row with more than 80% missing values.
             Consider omitting rows that are > 80% missing.")
-  }}
+  }
+  if (ncol(data_miss) < 50 | nrow(data_miss) < 50){
+    warning("The smallest data set MAI has been tested on was a 50x50 matrix.
+            Accuracy can not be guaranteed for smaller data sets.")}}
 
   # Check n_cores
   if (n_cores%%1 != 0){
@@ -84,11 +88,23 @@ MAI = function(data_miss,
 
   for (i in seq_len(10)){
     try({threshs[[i]] = check_distance(data_miss, data, PercentMiss)},
-        silent = FALSE)
+        silent = TRUE)
   }
-  smallestDistance = threshs[[which.min(lapply(threshs, function(x){
-    unlist(x[["distance"]])
-  }))]][["thresh"]][[1]]
+
+  threshs = threshs[!sapply(threshs,is.null)]
+
+  tryCatch(
+    {smallestDistance = threshs[[which.min(lapply(threshs, function(x){
+      unlist(x[["distance"]])
+    }))]][["thresh"]][[1]]},
+    error=function(e) {
+      message("Error message:")
+      message(e)
+      # Choose a return value in case of error
+      return(stop("Not enough data to estimate the pattern of missingness!"))
+    }
+  )
+
   # Set Threshold params
   alpha = smallestDistance[1]
   beta = smallestDistance[2]
@@ -143,12 +159,13 @@ MAI = function(data_miss,
   }
 
   # Random forest
-  rfFit = train(target ~ .,
+  rfFit = suppressMessages(train(target ~ .,
                 data = trainingSet,
                 method = "rf",
                 trControl = fitControl,
                 ntree = 300,
                 verbose = FALSE)
+  )
 
   if (n_cores != 1){
     stopCluster(cl)
@@ -187,9 +204,7 @@ MAI = function(data_miss,
 
     metadata(fldata) = c(metadata(fldata),
                          list(list(
-                           Estimated_Params = estimated_Params,
-                           MCAR_imputations = MCAR_imputations,
-                           MNAR_imputations = MNAR_imputations
+                           Estimated_Params = estimated_Params
                          ))
                             )
     names(metadata(fldata))[[length(metadata(fldata))]] =
@@ -197,7 +212,7 @@ MAI = function(data_miss,
 
     return(fldata)
   }else{
-    return(list(Imputed_data = Imputed_data,
+    return(list(Imputed_data = Imputed_data[["MAI"]],
                 Estimated_Params = list(
                   Alpha = alpha,
                   Beta = beta,
