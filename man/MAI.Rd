@@ -12,8 +12,17 @@ MAI(data_miss,
 }
 \description{
 A two-step approach to imputing missing data in metabolomics.
-    Where step 1 predicts missing value mechanisms, and step 2 imputes the
-    missing values based on the predicted missing mechanisms.
+    Step 1 uses a random forest classifier to classify missing values as
+    either Missing Completely at Random/Missing At Random (MCAR/MAR) or Missing
+    Not At Random (MNAR). MCAR/MAR are combined because it is often difficult to
+    distinguish these two missing types in metabolomics data. Step 2 imputes the
+    missing values based on the classified missing mechanisms, using the
+    appropriate imputation algorithms. Imputation algorithms tested and
+    available for MCAR/MAR include Bayesian Principal Component Analysis (BPCA),
+    Multiple Imputation No-Skip K-Nearest Neighbors (Multi_nsKNN), and
+    Random Forest. Imputation algorithms tested and available for MNAR include
+    nsKNN and a single imputation approach for imputation of metabolites where
+    left-censoring is present.
 }
 \arguments{
     \item{data_miss}{A matrix or dataframe, or a SummarizedExperiment containing
@@ -42,9 +51,7 @@ MAI(data_miss=untargeted_LCMS_data,
 }
 \value{
     When matrix or dataframe returns a list containing the following:
-    \item{Imputed Data}{Returns dataframes of MAI imputation as well as
-        imputations using the single defined algorithms for MCAR imputation
-        and MNAR imputation}
+    \item{Imputed Data}{Returns dataframes of MAI imputation}
     \item{Estimated Parameters}{Returns the estimated alpha, beta, and gamma
         parameters that define the missingness pattern in the data set}
 
@@ -53,6 +60,4 @@ MAI(data_miss=untargeted_LCMS_data,
         on the assay_ix assigned}
     \item{Estimated Parameters}{Returns estimated parameters in the metadata of
         the Summarized Experiment as a list}
-    \item{Single algorithm imputations}{Returns single algorithm imputations in
-        the metadata of the Summarized Experiment as a list}
 }
