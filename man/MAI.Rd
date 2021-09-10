@@ -52,8 +52,22 @@ MAI(data_miss=untargeted_LCMS_data,
 \value{
     When matrix or dataframe returns a list containing the following:
     \item{Imputed Data}{Returns dataframes of MAI imputation}
-    \item{Estimated Parameters}{Returns the estimated alpha, beta, and gamma
-        parameters that define the missingness pattern in the data set}
+    \item{Estimated Parameters}{Returns the estimated \eqn{\alpha}, \eqn{\beta},
+    and \eqn{\gamma} parameters that define the missingness pattern in the data
+    set. These parameters estimate the ratio of MCAR/MAR to MNAR in the data.
+    The parameters \eqn{\alpha} and \eqn{\beta} separate high, medium, and low
+    average abundance metabolites, while the parameter \eqn{\gamma} is used to
+    impose missingness in the medium and low abundance metabolites.  A smaller
+    \eqn{\alpha} corresponds to more MCAR/MAR being present, while larger
+    \eqn{\beta} and \eqn{\gamma} values imply more MNAR values being present.
+    The returned estimated parameters are then used to impose known missingness
+    in the complete subset of the input data. Subsequently, a random forest
+    classifier is trained to classify the known missingness in the complete
+    subset of the input data. Once the classifier is established it is applied
+    to the unknown missingness of the full input data to predict the
+    missingness. Finally, the missing values are imputed using a specific
+    algorithm, chosen by the user, according to the predicted
+    missingness mechanism.}
 
     When a Summarized Experiment returns:
     \item{Imputed Assay}{Returns the imputed data in the specified assay based
