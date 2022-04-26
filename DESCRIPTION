@@ -1,7 +1,7 @@
 Package: MAI
 Type: Package
 Title: Mechanism-Aware Imputation
-Version: 1.2.0
+Version: 1.3.0
 Authors@R: 
   c(person(given = "Jonathan",
            family = "Dekermanjian",
