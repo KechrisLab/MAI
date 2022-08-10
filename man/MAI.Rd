@@ -7,6 +7,10 @@ MAI(data_miss,
     MNAR_algorithm = c("nsKNN", "Single"),
     n_cores = 1,
     assay_ix = 1,
+    forest_list_args = list(
+        ntree = 300,
+        proximity = FALSE
+    ),
     verbose = TRUE
     )
 }
@@ -38,6 +42,7 @@ A two-step approach to imputing missing data in metabolomics.
     \item{assay_ix}{If data is a Summarized Experiment then this argument
           defines the index of the assay to impute. Default is set to the first
           assay.}
+    \item{forest_list_args}{Random forest named arguments to pass to the random forest training process. Defualt args are ntree = 300 and proximity = FALSE}
     \item{verbose}{A toggle to suppress console output. Default is TRUE}
 }
 \examples{
@@ -47,6 +52,10 @@ MAI(data_miss=untargeted_LCMS_data,
     MNAR_algorithm="Single",
     n_cores = 1,
     assay_ix = 1,
+    forest_list_args = list(
+        ntree = 300,
+        proximity = FALSE
+    ),
     verbose = TRUE)
 }
 \value{

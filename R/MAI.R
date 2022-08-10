@@ -3,6 +3,10 @@ MAI = function(data_miss,
                MNAR_algorithm = c('nsKNN', "Single"),
                n_cores = 1,
                assay_ix = 1,
+               forest_list_args = list(
+                   ntree = 300,
+                   proximity = FALSE
+               ),
                verbose = TRUE){
 
   MCAR_algorithm = match.arg(MCAR_algorithm)
@@ -159,12 +163,20 @@ MAI = function(data_miss,
   }
 
   # Random forest
-  rfFit = suppressMessages(train(target ~ .,
-                data = trainingSet,
-                method = "rf",
-                trControl = fitControl,
-                ntree = 300,
-                verbose = FALSE)
+  rfFit = suppressMessages(
+      do.call(
+          train,
+          c(
+              list(
+                  form = target ~ .,
+                  data = trainingSet,
+                  method = "rf",
+                  trControl = fitControl,
+                  verbose = FALSE
+              ),
+              forest_list_args
+          )
+      )
   )
 
   if (n_cores != 1){

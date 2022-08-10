@@ -80,6 +80,10 @@ Results = MAI(data_miss = untargeted_LCMS_data, # The data with missing values
           MCAR_algorithm = "BPCA", # The MCAR algorithm to use
           MNAR_algorithm = "Single", # The MNAR algorithm to use
           assay_ix = 1, # If SE, designates the assay to impute
+          forest_list_args = list( # random forest arguments for training
+            ntree = 300,
+            proximity = FALSE
+        ),
           verbose = TRUE # allows console message output
         )
 
@@ -117,6 +121,10 @@ Results = MAI(se, # The data with missing values
           MCAR_algorithm = "BPCA", # The MCAR algorithm to use
           MNAR_algorithm= "Single", # The MNAR algorithm to use
           assay_ix = 1, # If SE, designates the assay to impute
+          forest_list_args = list( # random forest arguments for training
+            ntree = 300,
+            proximity = FALSE
+        ),
           verbose = TRUE # allows console message output
         )
 
@@ -136,5 +144,5 @@ sessionInfo()
 ```
 
 # References
-
+Dekermanjian, J.P., Shaddox, E., Nandy, D. et al. Mechanism-aware imputation: a two-step approach in handling missing values in metabolomics. BMC Bioinformatics 23, 179 (2022). https://doi.org/10.1186/s12859-022-04659-1
 
